@@ -1,0 +1,152 @@
+Description:
+
+The project is used to train a neural network model using MNSIT dataset with a custom architecture and then setup a inference server
+that can be queried to make prediction.
+
+The inference engine is built using tensorflow serving APIs.
+
+Requirements:
++ Docker
++ Python 3.6 (all required pip packages are present in the requirements.txt file)
+
+Prerequites:
+
++ Install python and docker.
+    https://docs.docker.com/docker-for-mac/install/
+    https://www.python.org/downloads/
+
++ Install required python packages from requirement.txt file.
+
+    pip install -r requirements.txt
+
+Section:
+
+Training:
+
+The first steps is to train the model with required architecture. This is done using the serverutils/training/Train.py
+script.
+
+The script takes following input parameter:
+
++ config_file -> the hyperparameter configuration file that can be used to tweak the parameters for neural network.
++ model_dir -> the directory where the model geenrated will be stored.
+  Note: The final output be stored in output/<timestamp> folder inside this location.
++ result_dir -> the directory under which the evaluation result should be stored.(Output file will have time stamp name)
+
+
+How To:
+
++ Download the project and move to server_utils folder.
++ Execute the below command using python environment present.
+
+    venv/bin/python3.6 server_utils/training/Train.py -config_file server_utils/training/HyperParams.config -model_dir server_utils/training/models -result_dir server_utils/training/results
+
+Building Docker Image:
+
+We use a pre built docker image tensorflow-serving for the purpose of the serving the neural network.
+
+How To:
+
++ Ensure docker is installed on the system and running.
+
+  <link to install docker>
+
++ From root of project, run below command to build docker image.
+
+    docker build --rm -f server_utils/Dockerfile -t mnist-serving .
+
+Here the DockerFile is a configuration file used to pull down the right resources.
+
+Serve Neural Network:
+
+Once the docker is successfully installed, we can start serving server with below.
+
+How to:
+
++ Copy the content from <model_dir>/output/<timestamp> location from the training location into a servable location.
+
+For example:
+
+    From root of project.
+
+    cp -r ./server_utils/training/models/output/1542080510/ ./models/mnist/1
+
+    Note: The tensorflow serving model supports versioning which is indicated as 1 folder under mnist above.For more info
+    on how versioning works in tensorflow serving please visit below.
+
++ Run the docker image with below command.
+
+     docker run --rm  -v ${PWD}/models:/models -e MODEL_NAME='mnist' -e MODEL_PATH='/models/mnist' -p 8500:8500 --name mnist-instance mnist-serving
+
+    The model serving supports gRPC API and REST API.However we are using only the gRPC protocol in this project and the port 8500 is used for the same.
+
+    NOTE: MODEL_NAME is an environment variable to identify the served model for a gRPC client request
+          MODEL_PATH is an environment variable to identify the path to the saved model.
+          -v param maps absolute path on disk having the model to /models folder on docker in above example.
+          This path is then consumed by MODEL_PATH to retrieve the actual model file residing inside mnist.
+
+Making gRPC client request:
+
+We can use the Client python file under client_utils to make sample requests to test out the inference engine.
+
+How To:
+
++ From root of project.
+
+    venv/bin/python3.6 client_utils/Client.py --image client_utils/data/0.png --model mnist
+
+sample output received:
+
+The output has the predicted integer value as well probabilities for all classes from 0-9.
+
+{
+  key: "classes"
+  value {
+    dtype: DT_INT64
+    tensor_shape {
+      dim {
+        size: 1
+      }
+    }
+    int64_val: 9
+  }
+},
+{
+  key: "probabilities"
+  value {
+    dtype: DT_FLOAT
+    tensor_shape {
+      dim {
+        size: 1
+      }
+      dim {
+        size: 10
+      }
+    }
+    float_val: 0.0
+    float_val: 0.0
+    float_val: 0.0
+    float_val: 0.0
+    float_val: 0.0
+    float_val: 0.0
+    float_val: 0.0
+    float_val: 0.0
+    float_val: 0.0
+    float_val: 1.0
+  }
+}
+
+Useful commands:
+
++ Stop all docker instances:
+
+    docker stop $(docker ps -aq)
+
++ Remove all docker instances:
+
+    docker rm $(docker ps -aq)
+
+
+
+
+
