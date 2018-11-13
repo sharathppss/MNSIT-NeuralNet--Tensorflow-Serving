@@ -1,3 +1,5 @@
+#NOT USED.
+
 import json
 
 layer1 = {"type": "conv", "filters": 32, "kernal": [5, 5], "padding": "same","activation": "relu"}
