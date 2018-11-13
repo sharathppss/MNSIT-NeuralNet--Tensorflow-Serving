@@ -1,7 +1,7 @@
 Description:
 
-The project is used to train a neural network model using MNSIT dataset with a custom architecture and then setup a inference server
-that can be queried to make prediction.
+The project is used to train a neural network model using MNSIT dataset with a custom architecture and then setup an inference server
+that can be queried to make predictions.
 
 The inference engine is built using tensorflow serving APIs.
 
@@ -30,7 +30,7 @@ The script takes following input parameter:
 
 + config_file -> the hyperparameter configuration file that can be used to tweak the parameters for neural network.
 + model_dir -> the directory where the model geenrated will be stored.
-  Note: The final output be stored in output/<timestamp> folder inside this location.
+  Note: The final output will be stored in output/<timestamp> folder inside this location.
 + result_dir -> the directory under which the evaluation result should be stored.(Output file will have time stamp name)
 
 
@@ -48,8 +48,6 @@ We use a pre built docker image tensorflow-serving for the purpose of the servin
 How To:
 
 + Ensure docker is installed on the system and running.
-
-  <link to install docker>
 
 + From root of project, run below command to build docker image.
 
