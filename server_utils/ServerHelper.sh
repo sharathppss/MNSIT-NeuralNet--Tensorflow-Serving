@@ -1,4 +1,5 @@
 #!/bin/bash
+#THIS FILE IS NOT FUNCTIONING YET.
 
 dockerFile="Dockerfile"
 tfModel="mnsit"
